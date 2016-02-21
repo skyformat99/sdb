@@ -2,10 +2,11 @@
 #define SDB_TABLE_READER_H_
 
 #include <string>
-#include "file_reader.h"
 
 namespace sdb
 {
+	class FileReader;
+
 	class TableReader
 	{
 	public:

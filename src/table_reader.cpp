@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "table_reader.h"
+#include "file_reader.h"
 
 namespace sdb
 {
