@@ -1,0 +1,10 @@
+Table = Block*
+Block = type + length + data
+
+type: 1 byte
+length(depends on first bit and second bit):
+	0, 1 byte
+	10, 2 bytes
+	11, 4 bytes
+
+
