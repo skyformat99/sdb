@@ -44,12 +44,37 @@ namespace sdb
 	}
 	
 	bool TableReader::get(char **data, int *size){
-		int header_len = 4;
-		if(!_reader->prepare(header_len)){
+		if(!_reader->prepare(1)){
 			return false;
 		}
+		int header_len = 0;
+		int flag = _reader->data()[0] >> 6;
+		if(flag == 2){
+			header_len = 2;
+			if(!_reader->prepare(header_len)){
+				return false;
+			}
+			char b1 = _reader->data()[0];
+			char b0 = _reader->data()[1];
+			b1 &= ~((1 << 7) | (1 << 6));
+			*size = (b1 << 8) + b0;
+		}else if(flag == 3){
+			header_len = 4;
+			if(!_reader->prepare(header_len)){
+				return false;
+			}
+			char b3 = _reader->data()[0];
+			char b2 = _reader->data()[1];
+			char b1 = _reader->data()[2];
+			char b0 = _reader->data()[3];
+			b3 &= ~((1 << 7) | (1 << 6));
+			*size = (b3 << 24) + (b2 << 16) + (b1 << 8) + b0;
+		}else{
+			header_len = 1;
+			*size = _reader->data()[0];
+		}
 		_reader->skip(header_len);
-		*size = *((int32_t *)_reader->data());
+
 		if(!_reader->prepare(*size)){
 			return false;
 		}
