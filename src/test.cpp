@@ -21,7 +21,7 @@ int main(int argc, char **argv){
 	log_debug("");
 	srand(time(NULL));
 	for(int i=0; i<count; i++){
-		int num = i;//rand();
+		int num = rand();
 		char buf[128];
 		snprintf(buf, sizeof(buf), "%d", num);
 		int ret = writer->add(buf, strlen(buf));
@@ -29,6 +29,8 @@ int main(int argc, char **argv){
 			log_error("error %s", strerror(errno));
 			exit(0);
 		}
+		//printf("Press Enter: ");
+		//getchar();
 	}
 	log_debug("");
 	delete writer;
