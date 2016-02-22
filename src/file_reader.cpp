@@ -8,7 +8,7 @@ namespace sdb
 {
 	FileReader::FileReader(int fd){
 		_fd = fd;
-		_buf_size = 128 * 1024;
+		_buf_size = 32 * 1024;
 		_buf = (char *)malloc(_buf_size);
 		_data = _buf;
 		_data_size = 0;
@@ -29,6 +29,13 @@ namespace sdb
 		}
 		FileReader *ret = new FileReader(fd);
 		return ret;
+	}
+	
+	void FileReader::reset(){
+		_data = _buf;
+		_data_size = 0;
+		_read_pos = 0;
+		lseek(_fd, 0, SEEK_SET);
 	}
 
 	bool FileReader::prepare(int count){

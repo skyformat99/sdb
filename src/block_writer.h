@@ -11,7 +11,7 @@ namespace sdb
 		~BlockWriter();
 		static BlockWriter* open(const std::string &filename);
 
-		int add(const char *data, int size);
+		int append(const char *data, int size);
 	private:
 		int _fd;
 		BlockWriter();

@@ -23,10 +23,11 @@ namespace sdb
 	}
 
 	void BlockReader::seek(const std::string &target){
+		_reader->reset();
 		while(1){
 			char *data;
 			int size;
-			if(!this->get(&data, &size)){
+			if(!this->next(&data, &size)){
 				break;
 			}
 			
@@ -44,7 +45,7 @@ namespace sdb
 		}
 	}
 	
-	bool BlockReader::get(char **data, int *size){
+	bool BlockReader::next(char **data, int *size){
 		if(!_reader->prepare(1)){
 			return false;
 		}

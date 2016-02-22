@@ -10,6 +10,7 @@ namespace sdb
 	public:
 		static FileReader* open(const std::string &filename);
 		~FileReader();
+		void reset();
 		bool prepare(int count);
 		// skip 后, 原来的 data() 指向还是有效的
 		void skip(int count);

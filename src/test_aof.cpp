@@ -2,15 +2,15 @@
 #include <string.h>
 #include <time.h>
 #include "util/log.h"
-#include "block_reader.h"
-#include "block_writer.h"
+#include "aof_reader.h"
+#include "aof_writer.h"
 
 using namespace sdb;
 
 int main(int argc, char **argv){
 	std::string filename = "a.db";
 	
-	BlockWriter *writer = BlockWriter::open(filename);
+	AofWriter *writer = AofWriter::open(filename);
 	if(!writer){
 		log_error("error %s", strerror(errno));
 		exit(0);
@@ -24,7 +24,12 @@ int main(int argc, char **argv){
 		int num = rand();
 		char buf[128];
 		snprintf(buf, sizeof(buf), "%d", num);
-		int ret = writer->append(buf, strlen(buf));
+		int ret;
+		if(rand() % 2 == 0){
+			ret = writer->set(buf, "val");
+		}else{
+			ret = writer->del(buf);
+		}
 		if(ret == -1){
 			log_error("error %s", strerror(errno));
 			exit(0);
@@ -36,21 +41,11 @@ int main(int argc, char **argv){
 	delete writer;
 	
 	
-	BlockReader *reader = BlockReader::open(filename);
+	AofReader *reader = AofReader::open(filename);
 	if(!reader){
 		log_error("error %s", strerror(errno));
 		exit(0);
 	}
-	char *data;
-	int size;
-	int n = 0;
-	log_debug("");
-	while(reader->next(&data, &size)){
-		n ++;
-		//std::string s(data, size);
-		//log_debug("%s", s.c_str());
-	}
-	log_debug("%d item(s)", n);
 	
 	delete reader;
 	return 0;

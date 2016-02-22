@@ -26,7 +26,7 @@ namespace sdb
 		return ret;
 	}
 
-	int BlockWriter::add(const char *data, int size){
+	int BlockWriter::append(const char *data, int size){
 		// TODO: 内存优化
 		std::string buf;
 		buf.reserve(4 + size);
