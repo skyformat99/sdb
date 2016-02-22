@@ -19,8 +19,17 @@ namespace sdb
 			return NULL;
 		}
 		AofWriter *ret = new AofWriter();
+		ret->_filename = filename;
 		ret->_writer = bw;
 		return ret;
+	}
+	
+	int AofWriter::size() const{
+		return _writer->size();
+	}
+
+	std::string AofWriter::filename() const{
+		return _filename;
 	}
 
 	int AofWriter::set(const std::string &key, const std::string &val){

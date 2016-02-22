@@ -7,4 +7,5 @@
 *.swp
 *.dSYM*
 config.mk
+var
 

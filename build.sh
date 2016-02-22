@@ -60,7 +60,8 @@ echo CXX=$CXX >> config.mk
 echo "MAKE=$MAKE" >> config.mk
 
 echo "CFLAGS=" >> config.mk
-echo "CFLAGS = -DNDEBUG -D__STDC_FORMAT_MACROS -Wall -O2 -Wno-sign-compare" >> config.mk
+echo "CFLAGS = -g -D__STDC_FORMAT_MACROS -Wall -Wno-sign-compare" >> config.mk
+#echo "CFLAGS = -DNDEBUG -D__STDC_FORMAT_MACROS -Wall -O2 -Wno-sign-compare" >> config.mk
 echo "CFLAGS += ${PLATFORM_CFLAGS}" >> config.mk
 
 echo "CLIBS=" >> config.mk

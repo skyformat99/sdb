@@ -1,8 +1,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include "block_writer.h"
 #include <stdio.h>
+#include "block_writer.h"
+#include "util/log.h"
 
 namespace sdb
 {
@@ -23,7 +24,12 @@ namespace sdb
 		}
 		BlockWriter *ret = new BlockWriter();
 		ret->_fd = fd;
+		ret->_size = lseek(fd, 0, SEEK_END);
 		return ret;
+	}
+	
+	int BlockWriter::size() const{
+		return _size;
 	}
 
 	int BlockWriter::append(const char *data, int size){
@@ -64,6 +70,7 @@ namespace sdb
 		if(ret == -1){
 			return -1;
 		}
+		_size += ret;
 		return ret;
 	}
 
