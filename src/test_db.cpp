@@ -23,11 +23,15 @@ int main(int argc, char **argv){
 	for(int i=0; i<count; i++){
 		printf("Press Enter: ");
 		getchar();
-		int num = rand();
+		int num = rand() % 10;
 		char buf[128];
 		snprintf(buf, sizeof(buf), "%100d", num);
 		int ret;
-		ret = db->set(buf, "val");
+		if(rand() % 2 == 0){
+			ret = db->set(buf, "val");
+		}else{
+			ret = db->del(buf);
+		}
 		if(ret == -1){
 			log_error("error %s", strerror(errno));
 			exit(0);

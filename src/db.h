@@ -29,7 +29,10 @@ namespace sdb
 		std::string find_newest_filename(const std::string &ext);
 		int next_filename_seq();
 		std::string make_filename(int seq, const std::string &ext);
+		
 		AofWriter* make_aof();
+		AofWriter* make_table(int *seq);
+		void compact_aofs();
 	};
 
 }; // end namespace
