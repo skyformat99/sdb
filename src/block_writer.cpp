@@ -1,32 +1,32 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include "table_writer.h"
+#include "block_writer.h"
 #include <stdio.h>
 
 namespace sdb
 {
-	TableWriter::TableWriter(){
+	BlockWriter::BlockWriter(){
 		_fd = -1;
 	}
 
-	TableWriter::~TableWriter(){
+	BlockWriter::~BlockWriter(){
 		if(_fd >= 0){
 			close(_fd);
 		}
 	}
 
-	TableWriter* TableWriter::open(const std::string &filename){
+	BlockWriter* BlockWriter::open(const std::string &filename){
 		int fd = ::open(filename.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0644);
 		if(fd == -1){
 			return NULL;
 		}
-		TableWriter *ret = new TableWriter();
+		BlockWriter *ret = new BlockWriter();
 		ret->_fd = fd;
 		return ret;
 	}
 
-	int TableWriter::add(const char *data, int size){
+	int BlockWriter::add(const char *data, int size){
 		// TODO: 内存优化
 		std::string buf;
 		buf.reserve(4 + size);

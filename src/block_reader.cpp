@@ -1,28 +1,28 @@
 #include <stdlib.h>
-#include "table_reader.h"
+#include "block_reader.h"
 #include "file_reader.h"
 
 namespace sdb
 {
-	TableReader::TableReader(){
+	BlockReader::BlockReader(){
 		_reader = NULL;
 	}
 
-	TableReader::~TableReader(){
+	BlockReader::~BlockReader(){
 		delete _reader;
 	}
 
-	TableReader* TableReader::open(const std::string &filename){
+	BlockReader* BlockReader::open(const std::string &filename){
 		FileReader *fr = FileReader::open(filename);
 		if(!fr){
 			return NULL;
 		}
-		TableReader *ret = new TableReader();
+		BlockReader *ret = new BlockReader();
 		ret->_reader = fr;
 		return ret;
 	}
 
-	void TableReader::seek(const std::string &target){
+	void BlockReader::seek(const std::string &target){
 		while(1){
 			char *data;
 			int size;
@@ -44,7 +44,7 @@ namespace sdb
 		}
 	}
 	
-	bool TableReader::get(char **data, int *size){
+	bool BlockReader::get(char **data, int *size){
 		if(!_reader->prepare(1)){
 			return false;
 		}

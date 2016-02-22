@@ -1,10 +1,10 @@
 include ../config.mk
 
 OBJS = log.o \
-	table_writer.o table_reader.o file_reader.o
+	file_reader.o block_writer.o block_reader.o
 
 all: $(OBJS)
-	$(CXX) -o test.out test.cpp $(OBJS)
+	$(CXX) -o test_block.out test_block.cpp $(OBJS)
 
 log.o: util/log.h util/log.cpp
 	$(CXX) $(CFLAGS) -c util/log.cpp

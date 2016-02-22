@@ -1,5 +1,5 @@
-#ifndef SDB_TABLE_READER_H_
-#define SDB_TABLE_READER_H_
+#ifndef SDB_BLOCK_READER_H_
+#define SDB_BLOCK_READER_H_
 
 #include <string>
 
@@ -7,17 +7,17 @@ namespace sdb
 {
 	class FileReader;
 
-	class TableReader
+	class BlockReader
 	{
 	public:
-		~TableReader();
-		static TableReader* open(const std::string &filename);
+		~BlockReader();
+		static BlockReader* open(const std::string &filename);
 
 		void seek(const std::string &target);
 		bool get(char **data, int *size);
 	private:
 		FileReader *_reader;
-		TableReader();
+		BlockReader();
 	};
 
 }; // end namespace
