@@ -25,8 +25,10 @@ DbMeta* DbMeta::create(Db *db){
 		log_trace("empty db");
 		ret->_writer = ret->_db->_store->create_file("meta");
 	}else{
-		ret->merge_files(files);
-		files = ret->_db->_store->find_files_by_ext("meta");
+		if(files.size() > 1){
+			ret->merge_files(files);
+			files = ret->_db->_store->find_files_by_ext("meta");
+		}
 		int root_seq = files[0];
 		std::string name = ret->_db->_store->make_filename(root_seq, "meta");
 
@@ -53,7 +55,7 @@ int DbMeta::load_file(const std::string &filename){
 	}
 	delete reader;
 	
-	log_trace("=== all meta files ===");
+	log_trace("=== all files ===");
 	for(std::map<int, std::string>::iterator it=_files.begin(); it!=_files.end(); it++){
 		int seq = it->first;
 		const std::string &ext = it->second;

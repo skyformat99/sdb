@@ -27,8 +27,10 @@ DbAof* DbAof::create(Db *db){
 		ret->_writer = ret->_db->_store->create_file("aof", &seq);
 		ret->_db->_meta->add_file(seq, "aof");
 	}else{
-		ret->merge_files(files);
-		files = ret->_db->_meta->find_files_by_ext("aof");
+		if(files.size() > 1){
+			ret->merge_files(files);
+			files = ret->_db->_meta->find_files_by_ext("aof");
+		}
 		int seq = files[0];
 		std::string name = ret->_db->_store->make_filename(seq, "aof");
 
