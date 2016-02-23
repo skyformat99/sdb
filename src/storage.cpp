@@ -77,17 +77,17 @@ int Storage::next_file_seq(){
 	return ret;
 }
 
-AofWriter* Storage::create_file(const std::string &ext){
+AofWriter* Storage::create_file(const std::string &ext, int *ret_seq){
 	int seq = this->next_file_seq();
 	std::string name = this->make_filename(seq, ext);
-	_files[seq] = ext;
 	
 	AofWriter *ret = AofWriter::open(name);
-	log_trace("new file: %s", name.c_str());
+	log_trace("create file: %s", name.c_str());
 	
-	// TODO
-	//_root->set(str(seq), "aof");
-	
+	if(ret_seq){
+		*ret_seq = seq;
+	}
+	_files[seq] = ext;
 	return ret;
 }
 
@@ -102,4 +102,43 @@ int Storage::remove_file(int seq){
 	unlink(name.c_str());
 	_files.erase(it);
 	return 1;
+}
+
+// return new file seq
+int Storage::merge_files(const std::vector<int> &src, const std::string &ext){
+	std::map<std::string, std::string> sets;
+	std::set<std::string> dels;
+	
+	for(int i=0; i<src.size(); i++){
+		int seq = src[i];
+		std::string filename = this->make_filename(seq, ext);
+		AofReader *reader = AofReader::open(filename);
+		for(std::map<std::string, std::string>::iterator m_it=reader->sets.begin(); m_it!=reader->sets.end(); m_it++){
+			const std::string &key = m_it->first;
+			const std::string &val = m_it->second;
+			sets[key] = val;
+			dels.erase(key);
+		}
+		for(std::set<std::string>::iterator s_it=reader->dels.begin(); s_it!=reader->dels.end(); s_it++){
+			const std::string &key = *s_it;
+			sets.erase(key);
+			dels.insert(key);
+		}
+		delete reader;
+	}
+	
+	int dst_seq;
+	AofWriter *writer = this->create_file(ext, &dst_seq);
+	for(std::map<std::string, std::string>::iterator m_it=sets.begin(); m_it!=sets.end(); m_it++){
+		const std::string &key = m_it->first;
+		const std::string &val = m_it->second;
+		writer->set(key, val);
+	}
+	for(std::set<std::string>::iterator s_it=dels.begin(); s_it!=dels.end(); s_it++){
+		const std::string &key = *s_it;
+		writer->del(key);
+	}
+	delete writer;
+	
+	return dst_seq;
 }

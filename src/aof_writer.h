@@ -11,7 +11,6 @@ class AofWriter
 public:
 	~AofWriter();
 	static AofWriter* open(const std::string &filename);
-	static int merge_files(const std::vector<std::string> &src, const std::string &dst);
 	
 	int size() const;
 	std::string filename() const;

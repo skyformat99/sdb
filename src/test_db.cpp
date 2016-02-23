@@ -4,7 +4,7 @@
 #include "util/log.h"
 #include "db.h"
 
-using namespace sdb;
+//using namespace sdb;
 
 int main(int argc, char **argv){
 	set_log_level("trace");

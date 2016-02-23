@@ -4,8 +4,9 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "root.h"
 #include "storage.h"
+#include "db_meta.h"
+#include "db_aof.h"
 
 class Db
 {
@@ -16,11 +17,15 @@ public:
 	bool set(const std::string &key, const std::string &val);
 	bool del(const std::string &key);
 private:
-	std::string _path;
-	Storage *_store;
-	Root *_root;
+	friend class DbMeta;
+	friend class DbAof;
 	
-	AofWriter *_aof;
+	std::string _path;
+	
+	Storage *_store;
+	DbMeta *_meta;
+	DbAof *_aof;
+
 	Db();
 	
 	int init();
