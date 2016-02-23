@@ -32,6 +32,7 @@ Db* Db::open(const std::string &path){
 int Db::init(){
 	_store = DbStore::open(_path);
 	_meta = DbMeta::create(this);
+	_aof = DbAof::create(this);
 	return 0;
 }
 

@@ -19,7 +19,8 @@ public:
 	AofWriter* create_file(const std::string &ext, int *ret_seq=NULL);
 	int remove_file(int seq);
 	// return new file seq
-	int merge_files(const std::vector<int> &src, const std::string &ext);
+	// 当 drop_dels = true 时, 表示这是一次全量的 merge, 所以 dels 不会被写到新的文件中
+	int merge_files(const std::vector<int> &src, const std::string &ext, bool drop_dels=false);
 
 private:
 	std::string _path;

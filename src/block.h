@@ -2,8 +2,8 @@
 #define SDB_BLOCK_H_
 
 typedef enum{
-	BLOCK_SET = 1,
-	BLOCK_DEL = 2
+	BLOCK_SET = 'S',
+	BLOCK_DEL = 'D',
 }BlockType;
 
 #endif

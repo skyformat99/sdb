@@ -22,15 +22,15 @@ DbMeta* DbMeta::create(Db *db){
 	std::vector<int> files;
 	files = ret->_db->_store->find_files_by_ext("meta");
 	if(files.empty()){
+		log_trace("empty db");
 		ret->_writer = ret->_db->_store->create_file("meta");
 	}else{
-		if(files.size() > 1){
-			ret->merge_files(files);
-			files = ret->_db->_store->find_files_by_ext("meta");
-		}
+		ret->merge_files(files);
+		files = ret->_db->_store->find_files_by_ext("meta");
 		int root_seq = files[0];
 		std::string name = ret->_db->_store->make_filename(root_seq, "meta");
 
+		log_trace("load meta file: %s", name.c_str());
 		ret->load_file(name);
 		ret->_writer = AofWriter::open(name);
 	}
@@ -52,11 +52,20 @@ int DbMeta::load_file(const std::string &filename){
 		this->_files.erase(seq);
 	}
 	delete reader;
+	
+	log_trace("=== all meta files ===");
+	for(std::map<int, std::string>::iterator it=_files.begin(); it!=_files.end(); it++){
+		int seq = it->first;
+		const std::string &ext = it->second;
+		log_trace("  %s", _db->_store->make_filename(seq, ext).c_str());
+	}
+	log_trace("=== total %d ===", _files.size());
+	
 	return 0;
 }
 
 int DbMeta::merge_files(const std::vector<int> &files){
-	int dst_seq = _db->_store->merge_files(files, "meta");
+	int dst_seq = _db->_store->merge_files(files, "meta", true);
 
 	for(int i=0; i<files.size(); i++){
 		int seq = files[i];

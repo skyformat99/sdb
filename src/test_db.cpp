@@ -15,6 +15,8 @@ int main(int argc, char **argv){
 		log_error("error %s", strerror(errno));
 		exit(0);
 	}
+	printf("Press Enter: ");
+	getchar();
 	
 	int count = 100000;
 

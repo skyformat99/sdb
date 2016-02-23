@@ -41,7 +41,7 @@ void DbStore::load_file_seqs(){
 			continue;
 		}
 		std::string ext = name.substr(pos + 1);
-		if(ext == "root" || ext == "aof" || ext == "sst"){
+		if(ext == "meta" || ext == "aof" || ext == "sst"){
 			_files[num] = ext;
 		}
 	}
@@ -106,7 +106,7 @@ int DbStore::remove_file(int seq){
 }
 
 // return new file seq
-int DbStore::merge_files(const std::vector<int> &src, const std::string &ext){
+int DbStore::merge_files(const std::vector<int> &src, const std::string &ext, bool drop_dels){
 	std::map<std::string, std::string> sets;
 	std::set<std::string> dels;
 	
@@ -122,7 +122,6 @@ int DbStore::merge_files(const std::vector<int> &src, const std::string &ext){
 		}
 		for(std::set<std::string>::iterator s_it=reader->dels.begin(); s_it!=reader->dels.end(); s_it++){
 			const std::string &key = *s_it;
-			sets.erase(key);
 			dels.insert(key);
 		}
 		delete reader;
@@ -135,9 +134,11 @@ int DbStore::merge_files(const std::vector<int> &src, const std::string &ext){
 		const std::string &val = m_it->second;
 		writer->set(key, val);
 	}
-	for(std::set<std::string>::iterator s_it=dels.begin(); s_it!=dels.end(); s_it++){
-		const std::string &key = *s_it;
-		writer->del(key);
+	if(!drop_dels){
+		for(std::set<std::string>::iterator s_it=dels.begin(); s_it!=dels.end(); s_it++){
+			const std::string &key = *s_it;
+			writer->del(key);
+		}
 	}
 	delete writer;
 	
