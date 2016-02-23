@@ -3,23 +3,19 @@
 
 #include <string>
 
-namespace sdb
+class FileReader;
+
+class BlockReader
 {
-	class FileReader;
+public:
+	~BlockReader();
+	static BlockReader* open(const std::string &filename);
 
-	class BlockReader
-	{
-	public:
-		~BlockReader();
-		static BlockReader* open(const std::string &filename);
-
-		void seek(const std::string &target);
-		bool next(char **data, int *size);
-	private:
-		FileReader *_reader;
-		BlockReader();
-	};
-
-}; // end namespace
+	void seek(const std::string &target);
+	bool next(char **data, int *size);
+private:
+	FileReader *_reader;
+	BlockReader();
+};
 
 #endif

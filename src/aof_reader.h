@@ -5,22 +5,18 @@
 #include <map>
 #include <set>
 
-namespace sdb
+class BlockReader;
+
+class AofReader
 {
-	class BlockReader;
-
-	class AofReader
-	{
-	public:
-		std::set<std::string> dels;
-		std::map<std::string, std::string> sets;
-		~AofReader();
-		static AofReader* open(const std::string &filename);
-	private:
-		BlockReader *_reader;
-		AofReader();
-	};
-
-}; // end namespace
+public:
+	std::set<std::string> dels;
+	std::map<std::string, std::string> sets;
+	~AofReader();
+	static AofReader* open(const std::string &filename);
+private:
+	BlockReader *_reader;
+	AofReader();
+};
 
 #endif

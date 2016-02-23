@@ -3,22 +3,18 @@
 
 #include <string>
 
-namespace sdb
+class BlockWriter
 {
-	class BlockWriter
-	{
-	public:
-		~BlockWriter();
-		static BlockWriter* open(const std::string &filename);
+public:
+	~BlockWriter();
+	static BlockWriter* open(const std::string &filename);
 
-		int size() const;
-		int append(const char *data, int size);
-	private:
-		int _fd;
-		int _size;
-		BlockWriter();
-	};
-
-}; // end namespace
+	int size() const;
+	int append(const char *data, int size);
+private:
+	int _fd;
+	int _size;
+	BlockWriter();
+};
 
 #endif
