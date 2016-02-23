@@ -5,8 +5,6 @@
 #include "util/strings.h"
 #include "util/log.h"
 
-#define MAX_DB_SIZE       (1 * 1024)
-
 Db::Db(){
 	_meta = NULL;
 	_aof = NULL;
@@ -32,7 +30,7 @@ Db* Db::open(const std::string &path){
 }
 
 int Db::init(){
-	_store = Storage::open(_path);
+	_store = DbStore::open(_path);
 	_meta = DbMeta::create(this);
 	return 0;
 }

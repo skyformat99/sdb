@@ -69,6 +69,7 @@ int file_put_contents(const std::string &filename, const std::string &content){
 	return ret == (int)content.size()? ret : -1;
 }
 
+static inline
 std::vector<std::string> scandir(const std::string &path){
 	std::vector<std::string> ret;
 	DIR *dp = opendir(path.c_str());

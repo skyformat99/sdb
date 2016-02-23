@@ -5,6 +5,8 @@
 #include "aof_reader.h"
 #include "aof_writer.h"
 
+#define MAX_AOF_FILE_SIZE       (1 * 1024)
+
 DbAof::DbAof(){
 	_writer = NULL;
 }
@@ -66,3 +68,24 @@ int DbAof::merge_files(const std::vector<int> &files){
 
 ///////////////////////////////////////////////////////
 
+int DbAof::set(const std::string &key, const std::string &val){
+	if(_writer->size() > MAX_AOF_FILE_SIZE){
+		delete _writer;
+		int seq;
+		_writer = _db->_store->create_file("aof", &seq);
+		_db->_meta->add_file(seq, "aof");
+	}
+	_writer->set(key, val);
+	return 0;
+}
+
+int DbAof::del(const std::string &key){
+	if(_writer->size() > MAX_AOF_FILE_SIZE){
+		delete _writer;
+		int seq;
+		_writer = _db->_store->create_file("aof", &seq);
+		_db->_meta->add_file(seq, "aof");
+	}
+	_writer->del(key);
+	return 0;
+}

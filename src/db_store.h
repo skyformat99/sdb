@@ -1,5 +1,5 @@
-#ifndef SDB_STORAGE_H_
-#define SDB_STORAGE_H_
+#ifndef SDB_DB_STORE_H_
+#define SDB_DB_STORE_H_
 
 #include <string>
 #include <vector>
@@ -7,11 +7,11 @@
 #include <set>
 #include "aof_writer.h"
 
-class Storage
+class DbStore
 {
 public:
-	~Storage();
-	static Storage* open(const std::string &path);
+	~DbStore();
+	static DbStore* open(const std::string &path);
 	
 	std::string make_filename(int seq, const std::string &ext);
 	std::vector<int> find_files_by_ext(const std::string &ext) const;
@@ -24,7 +24,7 @@ public:
 private:
 	std::string _path;
 	std::map<int, std::string> _files; // seq => ext
-	Storage();
+	DbStore();
 	int next_file_seq();
 	void load_file_seqs();
 };

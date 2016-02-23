@@ -20,6 +20,7 @@ public:
 private:
 	Db *_db;
 	AofWriter *_writer;
+	// TODO: memtable
 	
 	DbAof();
 	int merge_files(const std::vector<int> &files);

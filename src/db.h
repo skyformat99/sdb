@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "storage.h"
+#include "db_store.h"
 #include "db_meta.h"
 #include "db_aof.h"
 
@@ -22,7 +22,7 @@ private:
 	
 	std::string _path;
 	
-	Storage *_store;
+	DbStore *_store;
 	DbMeta *_meta;
 	DbAof *_aof;
 
