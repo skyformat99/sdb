@@ -4,16 +4,19 @@
 #include <string>
 #include <map>
 #include <set>
-
-class BlockReader;
+#include "record.h"
+#include "block_reader.h"
 
 class AofReader
 {
 public:
-	std::set<std::string> dels;
-	std::map<std::string, std::string> sets;
 	~AofReader();
 	static AofReader* open(const std::string &filename);
+	
+	void reset();
+	bool next(Record *rec);
+	
+	void read_all(std::map<std::string, Record> &records);
 private:
 	BlockReader *_reader;
 	AofReader();

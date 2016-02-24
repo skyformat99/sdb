@@ -15,9 +15,27 @@ DbAof::~DbAof(){
 	delete _writer;
 }
 
+void DbAof::var_dump(){
+	std::vector<int> files;
+	files = _db->_meta->find_files_by_ext("aof");
+	std::string msg;
+	msg.append("aof files [");
+	for(int i=0; i<files.size(); i++){
+		int seq = files[i];
+		msg.append(str(seq));
+		if(i != files.size()-1){
+			msg.append(",");
+		}
+	}
+	msg.append("]");
+	log_trace("%s", msg.c_str());
+	_mm->var_dump();
+}
+
 DbAof* DbAof::create(Db *db){
 	DbAof *ret = new DbAof();
 	ret->_db = db;
+	ret->_mm = new MemTable();
 
 	std::vector<int> files;
 	files = ret->_db->_meta->find_files_by_ext("aof");
@@ -33,7 +51,8 @@ DbAof* DbAof::create(Db *db){
 		}
 		int seq = files[0];
 		std::string name = ret->_db->_store->make_filename(seq, "aof");
-
+	
+		ret->_mm->load(name);
 		ret->_writer = AofWriter::open(name);
 	}
 	
@@ -41,51 +60,39 @@ DbAof* DbAof::create(Db *db){
 }
 
 int DbAof::merge_files(const std::vector<int> &files){
+	log_trace("merge aof files:");
 	int dst_seq = _db->_store->merge_files(files, "aof");
-
 	_db->_meta->add_file(dst_seq, "aof");
 	for(int i=0; i<files.size(); i++){
 		int seq = files[i];
 		_db->_meta->del_file(seq);
 	}
-	
-	// logging stuff
-	std::string msg;
-	msg.append("merge aof files [");
-	for(int i=0; i<files.size(); i++){
-		int seq = files[i];
-		msg.append(str(seq));
-		if(i != files.size()-1){
-			msg.append(",");
-		}
-	}
-	msg.append("] => [");
-	msg.append(str(dst_seq));
-	msg.append("]");
-	log_trace("%s", msg.c_str());
-	
-	return 0;
+	return dst_seq;
 }
 
 ///////////////////////////////////////////////////////
 
-int DbAof::set(const std::string &key, const std::string &val){
+int DbAof::may_rotate_aof(){
+	int seq = 0;
 	if(_writer->size() > MAX_AOF_FILE_SIZE){
 		delete _writer;
-		int seq;
 		_writer = _db->_store->create_file("aof", &seq);
 		_db->_meta->add_file(seq, "aof");
+	}
+	return 0;
+}
+
+int DbAof::set(const std::string &key, const std::string &val){
+	if(this->may_rotate_aof() == -1){
+		return -1;
 	}
 	_writer->set(key, val);
 	return 0;
 }
 
 int DbAof::del(const std::string &key){
-	if(_writer->size() > MAX_AOF_FILE_SIZE){
-		delete _writer;
-		int seq;
-		_writer = _db->_store->create_file("aof", &seq);
-		_db->_meta->add_file(seq, "aof");
+	if(this->may_rotate_aof() == -1){
+		return -1;
 	}
 	_writer->del(key);
 	return 0;

@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "memtable.h"
 
 class Db;
 class AofWriter;
@@ -12,6 +13,7 @@ class DbAof
 {
 public:
 	~DbAof();
+	void var_dump();
 	static DbAof* create(Db *db);
 
 	int set(const std::string &key, const std::string &val);
@@ -20,10 +22,12 @@ public:
 private:
 	Db *_db;
 	AofWriter *_writer;
-	// TODO: memtable
+	MemTable *_mm;
 	
 	DbAof();
+	
 	int merge_files(const std::vector<int> &files);
+	int may_rotate_aof();
 };
 
 #endif

@@ -33,6 +33,9 @@ int Db::init(){
 	_store = DbStore::open(_path);
 	_meta = DbMeta::create(this);
 	_aof = DbAof::create(this);
+	
+	_meta->var_dump();
+	_aof->var_dump();
 	return 0;
 }
 

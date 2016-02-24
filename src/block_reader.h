@@ -11,8 +11,10 @@ public:
 	~BlockReader();
 	static BlockReader* open(const std::string &filename);
 
+	void reset();
 	void seek(const std::string &target);
 	bool next(char **data, int *size);
+	
 private:
 	FileReader *_reader;
 	BlockReader();

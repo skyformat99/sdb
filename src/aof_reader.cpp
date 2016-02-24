@@ -1,7 +1,5 @@
 #include <stdlib.h>
 #include "aof_reader.h"
-#include "block_reader.h"
-#include "block.h"
 
 AofReader::AofReader(){
 	_reader = NULL;
@@ -18,34 +16,43 @@ AofReader* AofReader::open(const std::string &filename){
 	}
 	AofReader *ret = new AofReader();
 	ret->_reader = br;
-	
-	while(1){
-		BlockType type;
-		char *buf;
-		int buf_size;
-		if(!ret->_reader->next(&buf, &buf_size)){
-			break;
-		}
-		type = (BlockType)buf[0];
-	
-		if(!ret->_reader->next(&buf, &buf_size)){
-			break;
-		}
-		std::string key(buf, buf_size);
-	
-		if(type == BLOCK_DEL){
-			ret->dels.insert(key);
-			ret->sets.erase(key);
-		}else{
-			if(!ret->_reader->next(&buf, &buf_size)){
-				break;
-			}
-			std::string val(buf, buf_size);
-			ret->dels.erase(key);
-			ret->sets[key] = val;
-		}
-	}
-	
 	return ret;
 }
 
+void AofReader::reset(){
+	_reader->reset();
+}
+
+bool AofReader::next(Record *rec){
+	char *buf;
+	int buf_size;
+	
+	// type
+	if(!_reader->next(&buf, &buf_size)){
+		return false;
+	}
+	rec->type = (RecordType)buf[0];
+
+	// key
+	if(!_reader->next(&buf, &buf_size)){
+		return false;
+	}
+	rec->key.assign(buf, buf_size);
+
+	// val
+	if(rec->is_set()){
+		if(!_reader->next(&buf, &buf_size)){
+			return false;
+		}
+		rec->val.assign(buf, buf_size);
+	}
+
+	return true;
+}
+
+void AofReader::read_all(std::map<std::string, Record> &records){
+	Record rec;
+	while(this->next(&rec)){
+		records[rec.key] = rec;
+	}
+}

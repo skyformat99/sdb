@@ -107,40 +107,44 @@ int DbStore::remove_file(int seq){
 
 // return new file seq
 int DbStore::merge_files(const std::vector<int> &src, const std::string &ext, bool drop_dels){
-	std::map<std::string, std::string> sets;
-	std::set<std::string> dels;
-	
+	std::map<std::string, Record> records;
+
 	for(int i=0; i<src.size(); i++){
 		int seq = src[i];
 		std::string filename = this->make_filename(seq, ext);
 		AofReader *reader = AofReader::open(filename);
-		for(std::map<std::string, std::string>::iterator m_it=reader->sets.begin(); m_it!=reader->sets.end(); m_it++){
-			const std::string &key = m_it->first;
-			const std::string &val = m_it->second;
-			sets[key] = val;
-			dels.erase(key);
-		}
-		for(std::set<std::string>::iterator s_it=reader->dels.begin(); s_it!=reader->dels.end(); s_it++){
-			const std::string &key = *s_it;
-			dels.insert(key);
-		}
+		reader->read_all(records);
 		delete reader;
 	}
 	
 	int dst_seq;
 	AofWriter *writer = this->create_file(ext, &dst_seq);
-	for(std::map<std::string, std::string>::iterator m_it=sets.begin(); m_it!=sets.end(); m_it++){
-		const std::string &key = m_it->first;
-		const std::string &val = m_it->second;
-		writer->set(key, val);
-	}
-	if(!drop_dels){
-		for(std::set<std::string>::iterator s_it=dels.begin(); s_it!=dels.end(); s_it++){
-			const std::string &key = *s_it;
-			writer->del(key);
+	for(std::map<std::string, Record>::iterator it=records.begin(); it!=records.end(); it++){
+		Record &rec = it->second;
+		if(rec.is_set()){
+			writer->set(rec.key, rec.val);
+		}else{
+			if(!drop_dels){
+				writer->del(rec.key);
+			}
 		}
 	}
 	delete writer;
+	
+	// logging stuff
+	std::string msg;
+	msg.append("merge files [");
+	for(int i=0; i<src.size(); i++){
+		int seq = src[i];
+		msg.append(str(seq));
+		if(i != src.size()-1){
+			msg.append(",");
+		}
+	}
+	msg.append("] => [");
+	msg.append(str(dst_seq));
+	msg.append("]");
+	log_trace("%s", msg.c_str());
 	
 	return dst_seq;
 }

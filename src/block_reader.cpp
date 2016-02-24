@@ -20,6 +20,10 @@ BlockReader* BlockReader::open(const std::string &filename){
 	return ret;
 }
 
+void BlockReader::reset(){
+	_reader->reset();
+}
+
 void BlockReader::seek(const std::string &target){
 	_reader->reset();
 	while(1){

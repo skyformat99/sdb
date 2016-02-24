@@ -15,6 +15,16 @@ DbMeta::~DbMeta(){
 	delete _writer;
 }
 
+void DbMeta::var_dump(){
+	log_trace("=== all files ===");
+	for(std::map<int, std::string>::iterator it=_files.begin(); it!=_files.end(); it++){
+		int seq = it->first;
+		const std::string &ext = it->second;
+		log_trace("  %s", _db->_store->make_filename(seq, ext).c_str());
+	}
+	log_trace("=== total %d ===", _files.size());
+}
+
 DbMeta* DbMeta::create(Db *db){
 	DbMeta *ret = new DbMeta();
 	ret->_db = db;
@@ -42,54 +52,29 @@ DbMeta* DbMeta::create(Db *db){
 
 int DbMeta::load_file(const std::string &filename){
 	AofReader *reader = AofReader::open(filename);
-	for(std::map<std::string, std::string>::iterator m_it=reader->sets.begin(); m_it!=reader->sets.end(); m_it++){
-		const std::string &key = m_it->first;
-		const std::string &val = m_it->second;
+	Record rec;
+	while(reader->next(&rec)){
+		const std::string &key = rec.key;
+		const std::string &val = rec.val;
 		int seq = str_to_int(key);
-		this->_files[seq] = val;
-	}
-	for(std::set<std::string>::iterator s_it=reader->dels.begin(); s_it!=reader->dels.end(); s_it++){
-		const std::string &key = *s_it;
-		int seq = str_to_int(key);
-		this->_files.erase(seq);
+		if(rec.is_set()){
+			this->_files[seq] = val;
+		}else{
+			this->_files.erase(seq);
+		}
 	}
 	delete reader;
-	
-	log_trace("=== all files ===");
-	for(std::map<int, std::string>::iterator it=_files.begin(); it!=_files.end(); it++){
-		int seq = it->first;
-		const std::string &ext = it->second;
-		log_trace("  %s", _db->_store->make_filename(seq, ext).c_str());
-	}
-	log_trace("=== total %d ===", _files.size());
-	
 	return 0;
 }
 
 int DbMeta::merge_files(const std::vector<int> &files){
+	log_trace("merge meta files:");
 	int dst_seq = _db->_store->merge_files(files, "meta", true);
-
 	for(int i=0; i<files.size(); i++){
 		int seq = files[i];
 		_db->_store->remove_file(seq);
 	}
-	
-	// logging stuff
-	std::string msg;
-	msg.append("merge meta files [");
-	for(int i=0; i<files.size(); i++){
-		int seq = files[i];
-		msg.append(str(seq));
-		if(i != files.size()-1){
-			msg.append(",");
-		}
-	}
-	msg.append("] => [");
-	msg.append(str(dst_seq));
-	msg.append("]");
-	log_trace("%s", msg.c_str());
-	
-	return 0;
+	return dst_seq;
 }
 
 ///////////////////////////////////////////////////////

@@ -14,6 +14,14 @@ public:
 	RecordType type;
 	std::string key;
 	std::string val;
+	
+	bool is_set() const{
+		return type == RECORD_SET;
+	}
+	
+	bool is_del() const{
+		return type == RECORD_DEL;
+	}
 };
 
 #endif

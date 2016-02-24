@@ -13,6 +13,7 @@ class DbMeta
 public:
 	DbMeta();
 	~DbMeta();
+	void var_dump();
 	static DbMeta* create(Db *db);
 	
 	int add_file(int seq, const std::string &ext);
@@ -24,7 +25,7 @@ private:
 	Db *_db;
 	AofWriter *_writer;
 	std::map<int, std::string> _files;
-	
+
 	int load_file(const std::string &filename);
 	int merge_files(const std::vector<int> &files);
 };
