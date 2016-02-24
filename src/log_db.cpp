@@ -6,15 +6,18 @@
 #define MIN_FILENAME_SEQ  1
 #define MAX_FILENAME_SEQ  100
 #define MAX_LOG_FILE_SIZE 1024
+#define MAX_LOG_FILES     3
 
 LogDb::LogDb(){
-	_mm = NULL;
 	_log = NULL;
+	_mm = NULL;
+	_imm = NULL;
 }
 
 LogDb::~LogDb(){
-	delete _mm;	
 	delete _log;	
+	delete _mm;
+	delete _imm;
 }
 
 void LogDb::var_dump(){
@@ -126,7 +129,26 @@ int LogDb::try_rotate_log(){
 		return 0;
 	}
 	
-	// TODO: compact log files
+	if(_files.size() >= MAX_LOG_FILES || _mm->size() > MAX_LOG_FILE_SIZE){
+		std::set<int> olds = _files;
+
+		if(_imm){
+			delete _imm;
+		}
+		_imm = _mm;
+		_mm = new MemTable();
+		
+		int seq = 0;
+		AofWriter *merge = this->create_file(&seq);
+		_imm->save(merge);
+		log_trace("dump memtable to: %d", seq);
+		delete merge;
+		
+		for(std::set<int>::iterator it=olds.begin(); it!=olds.end(); it++){
+			int seq = *it;
+			this->remove_file(seq);
+		}
+	}
 	
 	int seq = 0;
 	delete _log;
@@ -189,7 +211,7 @@ AofWriter* LogDb::create_file(int *ret_seq){
 	std::string name = this->make_filename(seq);
 	
 	AofWriter *ret = AofWriter::open(name);
-	log_trace("create file: %s", name.c_str());
+	log_trace("new file: %s", name.c_str());
 	
 	if(ret_seq){
 		*ret_seq = seq;
@@ -209,5 +231,6 @@ int LogDb::remove_file(int seq){
 		return -1;
 	}
 	_files.erase(it);
+	log_trace("remove file: %s", name.c_str());
 	return 1;
 }

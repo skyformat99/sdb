@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include "record.h"
+#include "aof_writer.h"
 
 class MemTable
 {
@@ -18,6 +19,7 @@ public:
 	void del(const std::string &key);
 
 	void load(const std::string &filename);
+	int save(AofWriter *writer) const;
 private:
 	int _size;
 	std::map<std::string, Record> _records;

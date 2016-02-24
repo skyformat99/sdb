@@ -13,7 +13,7 @@ void MemTable::var_dump(){
 	log_trace("=== memtable ===");
 	log_trace("  size: %d byte(s)", _size);
 	for(std::map<std::string, Record>::iterator it=_records.begin(); it!=_records.end(); it++){
-		Record &rec = it->second;
+		const Record &rec = it->second;
 		log_trace("  %s %s", (rec.is_set()? "set":"del"), rec.key.c_str());
 	}
 	log_trace("=== total %d ===", _records.size());
@@ -65,5 +65,17 @@ void MemTable::load(const std::string &filename){
 		this->set(rec);
 	}
 	delete reader;
+}
+
+int MemTable::save(AofWriter *writer) const{
+	for(std::map<std::string, Record>::const_iterator it=_records.begin(); it!=_records.end(); it++){
+		const Record &rec = it->second;
+		if(rec.is_set()){
+			writer->set(rec.key, rec.val);
+		}else{
+			writer->del(rec.key);
+		}
+	}
+	return 0;
 }
 

@@ -30,8 +30,9 @@ private:
 	std::string _path;
 	std::string _ext;
 	
-	MemTable *_mm;
 	AofWriter *_log;
+	MemTable *_mm;
+	MemTable *_imm;
 
 	std::set<int> _files;
 
