@@ -17,6 +17,7 @@ public:
 	bool contains(const std::string &key) const;
 	void set(const std::string &key, const std::string &val);
 	void del(const std::string &key);
+	bool get(const std::string &key, Record *rec);
 
 	void load(const std::string &filename);
 	int save(AofWriter *writer) const;

@@ -156,6 +156,16 @@ int LogDb::try_rotate_log(){
 	return seq;
 }
 
+bool LogDb::get(const std::string &key, Record *rec){
+	if(_mm->get(key, rec)){
+		return true;
+	}
+	if(_imm && _imm->get(key, rec)){
+		return true;
+	}
+	return false;
+}
+
 ////////////// filesystem //////////////
 
 int LogDb::init_filesystem(){

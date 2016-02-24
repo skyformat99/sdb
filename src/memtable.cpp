@@ -58,6 +58,19 @@ void MemTable::set(RecordType type, const std::string &key, const std::string &v
 	this->set(rec);
 }
 
+bool MemTable::get(const std::string &key, Record *rec){
+	std::map<std::string, Record>::const_iterator it;
+	it = _records.find(key);
+	if(it != _records.end()){
+		*rec = it->second;
+		return true;
+	}
+	return false;	
+}
+
+
+////////////////////////////////////////
+
 void MemTable::load(const std::string &filename){
 	AofReader *reader = AofReader::open(filename);
 	Record rec;

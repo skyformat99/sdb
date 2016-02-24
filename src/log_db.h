@@ -10,6 +10,8 @@
 /*
 LogDb 是一个基于 aof(append only file) + memtable 的持久化数据库,
 aof 用于持久化, 而 memtable 是持久化的全部数据在内存中的映射.
+
+注意, DELETE 只是做标记, 所以 get() 的返回值要判断是哪种类型!
 */
 
 class LogDb
@@ -22,6 +24,8 @@ public:
 	bool contains(const std::string &key);
 	bool set(const std::string &key, const std::string &val);
 	bool del(const std::string &key);
+
+	bool get(const std::string &key, Record *rec);
 	
 	// 尝试切换新的 log, 如果已切换, 返回新文件的 seq(>=0), 否则返回0
 	int try_rotate_log();
