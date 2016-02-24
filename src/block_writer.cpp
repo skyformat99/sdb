@@ -7,6 +7,7 @@
 
 BlockWriter::BlockWriter(){
 	_fd = -1;
+	_size = 0;
 }
 
 BlockWriter::~BlockWriter(){

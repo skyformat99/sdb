@@ -7,29 +7,29 @@
 #define MIN_FILENAME_SEQ  1
 #define MAX_FILENAME_SEQ  100
 
-DbStore::DbStore(){
+Store::Store(){
 }
 
-DbStore::~DbStore(){
+Store::~Store(){
 }
 
-DbStore* DbStore::open(const std::string &path){
+Store* Store::open(const std::string &path){
 	if(!file_exists(path)){
 		mkdir(path.c_str(), 0744);
 	}
-	DbStore *ret = new DbStore();
+	Store *ret = new Store();
 	ret->_path = path;
 	ret->load_file_seqs();
 	return ret;
 }
 
-std::string DbStore::make_filename(int seq, const std::string &ext){
+std::string Store::make_filename(int seq, const std::string &ext){
 	char buf[256];
 	snprintf(buf, sizeof(buf), "%s%08d.%s", _path.c_str(), seq, ext.c_str());
 	return buf;
 }
 
-void DbStore::load_file_seqs(){
+void Store::load_file_seqs(){
 	std::vector<std::string> files = scandir(_path);
 	std::vector<std::string>::iterator it;
 	for(it=files.begin(); it!=files.end(); it++){
@@ -41,13 +41,12 @@ void DbStore::load_file_seqs(){
 			continue;
 		}
 		std::string ext = name.substr(pos + 1);
-		if(ext == "meta" || ext == "aof" || ext == "sst"){
-			_files[num] = ext;
-		}
+		// TODO:
+		_files[num] = ext;
 	}
 }
 
-std::vector<int> DbStore::find_files_by_ext(const std::string &ext) const{
+std::vector<int> Store::find_files_by_ext(const std::string &ext) const{
 	std::vector<int> ret;
 	for(std::map<int, std::string>::const_iterator it=_files.begin(); it!=_files.end(); it++){
 		if(it->second == ext){
@@ -57,7 +56,7 @@ std::vector<int> DbStore::find_files_by_ext(const std::string &ext) const{
 	return ret;
 }
 
-int DbStore::next_file_seq(){
+int Store::next_file_seq(){
 	int ret = MIN_FILENAME_SEQ;
 	std::map<int, std::string>::reverse_iterator rit;
 	rit = _files.rbegin();
@@ -78,7 +77,7 @@ int DbStore::next_file_seq(){
 	return ret;
 }
 
-AofWriter* DbStore::create_file(const std::string &ext, int *ret_seq){
+AofWriter* Store::create_file(const std::string &ext, int *ret_seq){
 	int seq = this->next_file_seq();
 	std::string name = this->make_filename(seq, ext);
 	
@@ -92,7 +91,7 @@ AofWriter* DbStore::create_file(const std::string &ext, int *ret_seq){
 	return ret;
 }
 
-int DbStore::remove_file(int seq){
+int Store::remove_file(int seq){
 	std::map<int, std::string>::iterator it;
 	it = _files.find(seq);
 	if(it == _files.end()){
@@ -106,7 +105,7 @@ int DbStore::remove_file(int seq){
 }
 
 // return new file seq
-int DbStore::merge_files(const std::vector<int> &src, const std::string &ext, bool drop_dels){
+int Store::merge_files(const std::vector<int> &src, const std::string &ext, bool drop_dels){
 	std::map<std::string, Record> records;
 
 	for(int i=0; i<src.size(); i++){

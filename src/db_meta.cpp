@@ -104,6 +104,10 @@ int DbMeta::add_file(int seq, const std::string &ext){
 }
 
 int DbMeta::del_file(int seq){
+	if(_files.find(seq) == _files.end()){
+		return 0;
+	}
+	
 	if(_writer->size() > MAX_META_FILE_SIZE){
 		delete _writer;
 		_writer = _db->_store->create_file("meta");

@@ -4,7 +4,6 @@
 #include "aof_writer.h"
 #include "aof_reader.h"
 #include "block_writer.h"
-#include "block.h"
 
 AofWriter::AofWriter(){
 	_writer = NULL;
@@ -34,7 +33,7 @@ std::string AofWriter::filename() const{
 }
 
 int AofWriter::set(const std::string &key, const std::string &val){
-	char btype = (char)BLOCK_SET;
+	char btype = (char)RECORD_SET;
 	int ret = 0;
 	// TODO: write batch
 	ret += _writer->append(&btype, 1);
@@ -44,10 +43,34 @@ int AofWriter::set(const std::string &key, const std::string &val){
 }
 
 int AofWriter::del(const std::string &key){
-	char btype = (char)BLOCK_DEL;
+	char btype = (char)RECORD_DEL;
 	int ret = 0;
 	// TODO: write batch
 	ret += _writer->append(&btype, 1);
 	ret += _writer->append(key.data(), key.size());
 	return ret;
+}
+
+int AofWriter::merge_files(const std::vector<std::string> &src, const std::string &dst){
+	std::map<std::string, Record> records;
+
+	for(int i=0; i<src.size(); i++){
+		std::string filename = src[i];
+		AofReader *reader = AofReader::open(filename);
+		reader->read_all(records);
+		delete reader;
+	}
+	
+	AofWriter *writer = AofWriter::open(dst);
+	for(std::map<std::string, Record>::iterator it=records.begin(); it!=records.end(); it++){
+		Record &rec = it->second;
+		if(rec.is_set()){
+			writer->set(rec.key, rec.val);
+		}else{
+			writer->del(rec.key);
+		}
+	}
+	delete writer;
+	
+	return 0;
 }

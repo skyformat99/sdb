@@ -3,6 +3,7 @@
 #include "aof_reader.h"
 
 MemTable::MemTable(){
+	_size = 0;
 }
 
 MemTable::~MemTable(){
@@ -22,6 +23,10 @@ int MemTable::size() const{
 	return _size;
 }
 
+bool MemTable::contains(const std::string &key) const{
+	return _records.find(key) != _records.end();
+}
+
 void MemTable::set(const std::string &key, const std::string &val){
 	this->set(RECORD_SET, key, val);
 }
@@ -32,18 +37,17 @@ void MemTable::del(const std::string &key){
 
 void MemTable::set(const Record &rec){
 	int bytes = 4 + rec.key.size() + rec.val.size();
-	int incr_bytes = 0;
 
 	std::map<std::string, Record>::iterator it;
 	it = _records.find(rec.key);
 	if(it != _records.end()){
 		Record old = it->second;
 		int old_bytes = 4 + old.key.size() + old.val.size();
-		incr_bytes = bytes - old_bytes;
+		bytes = bytes - old_bytes;
 	}
 	
 	_records[rec.key] = rec;
-	_size += incr_bytes;
+	_size += bytes;
 }
 
 void MemTable::set(RecordType type, const std::string &key, const std::string &val){

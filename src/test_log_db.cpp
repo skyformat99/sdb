@@ -2,7 +2,7 @@
 #include <string.h>
 #include <time.h>
 #include "util/log.h"
-#include "db.h"
+#include "log_db.h"
 
 //using namespace sdb;
 
@@ -10,13 +10,14 @@ int main(int argc, char **argv){
 	set_log_level("trace");
 	std::string path = "./var";
 	
-	Db *db = Db::open(path);
+	LogDb *db = LogDb::open(path, "test_log_db");
 	if(!db){
 		log_error("error %s", strerror(errno));
 		exit(0);
 	}
+	db->var_dump();
 	
-	int count = 10;
+	int count = 60;
 
 	srand(time(NULL));
 	while(1){
@@ -32,6 +33,7 @@ int main(int argc, char **argv){
 			}else{
 				ret = db->del(buf);
 			}
+			db->try_rotate_log();
 			if(ret == -1){
 				log_error("error %s", strerror(errno));
 				exit(0);

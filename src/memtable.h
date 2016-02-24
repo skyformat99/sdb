@@ -13,6 +13,7 @@ public:
 	void var_dump();
 	
 	int size() const;
+	bool contains(const std::string &key) const;
 	void set(const std::string &key, const std::string &val);
 	void del(const std::string &key);
 
