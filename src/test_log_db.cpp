@@ -33,7 +33,10 @@ int main(int argc, char **argv){
 			}else{
 				ret = db->del(buf);
 			}
-			db->try_rotate_log();
+			int seq = db->try_rotate_log();
+			if(seq > 0){
+				log_debug("new log: %d", seq);
+			}
 			if(ret == -1){
 				log_error("error %s", strerror(errno));
 				exit(0);
