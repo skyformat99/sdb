@@ -29,6 +29,41 @@ public:
 	
 	// 尝试切换新的 log, 如果已切换, 返回新文件的 seq(>=0), 否则返回0
 	int try_rotate_log();
+	
+	/*
+	
+	while(1){
+		sleep(1);
+	
+		compaction = meta_db->create_compaction();
+		if(compaction == NULL){
+			return;
+		}
+		compaction->invoke();
+		// 对于 meta 层, compaction 完成之后, 什么也不做
+		compaction->cleanup();
+		delete compaction;
+		// TODO: reuse file seq
+	}
+	
+	while(1){
+		sleep(1);
+	
+		compaction = aof_db->create_compaction();
+		if(compaction == NULL){
+			return;
+		}
+		compaction->invoke();
+		// 对于 aof 层, compaction 完成之后, 需要将产出物移到下一层
+		level[0]->add_files(compaction->dst_files, "level-0");
+		compaction->cleanup();
+		delete compaction;
+		// TODO: reuse file seq
+	}
+	
+	
+	*/
+	// compact_imm(AofWriter *writer);
 
 private:
 	std::string _path;
